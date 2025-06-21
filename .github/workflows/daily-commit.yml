@@ -1,12 +1,9 @@
 name: Daily Commit Action
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # every day at midnight UTC
-
-permissions:
-  contents: write  # ✅ this is REQUIRED for pushing
+    - cron: '0 0 * * *' # every day at midnight UTC
+  workflow_dispatch:
 
 jobs:
   daily-commit:
@@ -16,11 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Make a daily commit
+      - name: Make a change
         run: |
-          date >> daily-log.txt
-          git config --global user.name "github-actions[bot]"
+          echo "$(date)" >> daily-log.txt
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "21f3000697"
           git config --global user.email "21f3000697@ds.study.iitm.ac.in"
           git add .
-          git commit -m "Automated daily commit"
-          git push
+          git commit -m "Automated daily commit on $(date)" || echo "No changes to commit"
+
+      - name: Push changes
+        env:
+          MY_PAT: ${{ secrets.MY_PAT }}
+        run: |
+          git remote set-url origin https://21f3000697:${MY_PAT}@github.com/21f3000697/daily-commit-test.git
+          git push origin main
