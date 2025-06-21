@@ -2,8 +2,11 @@ name: Daily Commit Action
 
 on:
   schedule:
-    - cron: '0 0 * * *' # every day at midnight UTC
+    - cron: '0 0 * * *' # runs daily at midnight UTC
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   daily-commit:
@@ -13,20 +16,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Make a change
+      - name: Add timestamp to file - 21f3000697@ds.study.iitm.ac.in
         run: |
-          echo "$(date)" >> daily-log.txt
+          echo "Commit on $(date)" >> daily-log.txt
 
       - name: Commit changes
         run: |
           git config --global user.name "21f3000697"
           git config --global user.email "21f3000697@ds.study.iitm.ac.in"
           git add .
-          git commit -m "Automated daily commit on $(date)" || echo "No changes to commit"
+          git commit -m "Automated commit on $(date)" || echo "Nothing to commit"
 
-      - name: Push changes
-        env:
-          MY_PAT: ${{ secrets.MY_PAT }}
+      - name: Push using PAT
         run: |
-          git remote set-url origin https://21f3000697:${MY_PAT}@github.com/21f3000697/daily-commit-test.git
+          git remote set-url origin https://21f3000697:${{ secrets.MY_PAT }}@github.com/21f3000697/daily-commit-test.git
           git push origin main
